@@ -23,7 +23,7 @@
         <form method="post" action="upload" enctype="multipart/form-data">
         <label for="formFile" class="form-label">Choose File</label>
         <input class="form-control" type="file" id="formFile" name = "file" >
-            <button type="submit" class="btn btn-primary mb-3 mt-3" >Uplaod</button>
+            <button type="submit" class="btn btn-success mb-3 mt-3" >Uplaod</button>
         </form>
     </div>
 </div>

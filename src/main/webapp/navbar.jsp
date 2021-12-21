@@ -3,7 +3,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Master Home</title>
+    <style>
+        body
+        {
+            background: #4a58e8;
+        }
+    </style>
+    <title>File share</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <!-- JavaScript Bundle with Popper -->
@@ -11,10 +17,10 @@
             integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
             crossorigin="anonymous"></script>
 </head>
-<body>
+<body style="background:#516bf5;">
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg  navbar-light  fixed" style="background-color: #e3f2fd;">
+<nav class="navbar navbar-expand-lg  navbar-dark text-light bg-dark fixed" style="background-color: #e3f2fd;">
     <!-- Container wrapper -->
     <div class="container-fluid">
         <!-- Toggle button -->
@@ -33,7 +39,7 @@
         <!-- Collapsible wrapper -->
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <!-- Navbar brand -->
-            <h1>File Share</h1>
+            <h4>File Share</h4>
 
         <!-- Collapsible wrapper -->
             <ul class="navbar-nav mx-auto text-center">
@@ -64,7 +70,7 @@
                     data-mdb-toggle="dropdown"
                     aria-expanded="false"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-power" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="red" class="bi bi-power" viewBox="0 0 16 16">
                     <path d="M7.5 1v7h1V1h-1z"/>
                     <path d="M3 8.812a4.999 4.999 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812z"/>
                 </svg>

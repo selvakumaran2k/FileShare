@@ -25,16 +25,16 @@
             <img src="https://aroundsketch.github.io/Apple-App-Icons/App%20Icon/Apple/Files/@PNG.png" width="70px" height="70px" alt="Application">
             <div class="card-body">
                 <h5 class="card-title"><%=resource.getFileName()%>
-                    <% if (true) { %>
-                    <span class="badge bg-success">ACTIVE</span>
-                    <% } else {%>
-                    <span class="badge bg-danger">INACTIVE</span>
-                    <% } %>
+<%--                    <% if (true) { %>--%>
+<%--                    <span class="badge bg-success">ACTIVE</span>--%>
+<%--                    <% } else {%>--%>
+<%--                    <span class="badge bg-danger">INACTIVE</span>--%>
+<%--                    <% } %>--%>
                 </h5>
                 <p class="card-text"><%=resource.getDescription()%>
                 </p>
-                <a href="/FileShare/open/<%=resource.getId()%>" class="btn btn-primary" >Open</a>
-                <a href="/Master/removeApplication/<%=resource.getSize()%>" class="btn btn-danger">X</a>
+                <a href="/FileShare/open/owner/<%=resource.getId()%>" class="btn btn-primary" >Open</a>
+                <a href="/FileShare/download/<%=resource.getId()%>" class="btn btn-success">Download</a>
             </div>
         </div>
     </div>

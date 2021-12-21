@@ -21,9 +21,10 @@ public class ShareServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String targetName = (String) request.getParameter("targetName");
-        String resource= (String) request.getParameter("resource");
-        String target = (String) request.getParameter("target");
+
+        String targetName = request.getParameter("targetName");
+        String resource= request.getParameter("resource");
+        String target = request.getParameter("target");
 
         HttpSession session = (HttpSession) request.getSession();
         RequestDispatcher requestDispatcher = null;
@@ -53,6 +54,5 @@ public class ShareServlet extends HttpServlet {
             }
         }
         requestDispatcher.forward(request,response);
-
     }
 }

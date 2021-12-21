@@ -1,5 +1,6 @@
 package com.example.fileshare.DB;
 
+import com.example.fileshare.processingPack.Group;
 import com.example.fileshare.processingPack.Resource;
 import sun.awt.image.ImageWatched;
 
@@ -123,19 +124,22 @@ public class DBConnector {
 
     public boolean shareResourceToGroup(String targetName, String resource, String level) {
         String sql = "  insert into group_resources(group_id, resource_id)\n" +
-                " VALUES ((select group_id from groups where group_name = '" + targetName + "')," + resource + ");";
+                " VALUES (" + targetName + "," + resource + ");";
         return DB.execute(sql, true);
     }
 
-    public List<String> getGroupsForUser(String username) {
-        String sql = "select groups.group_name from groups\n" +
+    public List<String[]> getGroupsForUser(String username) {
+        String sql = "select groups.group_name,groups.group_id from groups\n" +
                 "INNER JOIN user_groups gr on groups.group_id = gr.group_id\n" +
-                "where (select id from user_table where \"user_ID\" = '"+username+"') = gr.user_id";
+                "where (select id from user_table where \"user_ID\" = '" + username + "') = gr.user_id";
         ResultSet rs = DB.getData(sql);
-        List<String> groups = new ArrayList<>();
+        List<String[]> groups = new ArrayList<>();
         try {
             while (rs.next()) {
-                groups.add(rs.getString(1));
+                String s[] = new String[2];
+                s[0] = rs.getString(1);
+                s[1] = rs.getString(2);
+                groups.add(s);
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -144,16 +148,27 @@ public class DBConnector {
         return groups;
     }
 
-    public boolean createGroup(String groupName, String[] membersList) {
-        String sql = "insert into groups(group_name)\n" +
-                "values ('" + groupName + "');";
+    public boolean createGroup(String groupName, String[] membersList, String owner) {
+        String sql = "insert into groups(group_name,creator_id,description,created_time)\n" +
+                "values ('" + groupName + "',(select id from user_table where \"user_ID\" = '" + owner + "'),'Group',current_timestamp) returning group_id;";
 
-        if (!DB.execute(sql, false))
-            return false;
+        ResultSet set = DB.getData(sql);
+        long id = 0;
+        try {
+            set.next();
+            id = set.getLong(1);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        System.out.println("Group crested in groups with id " + id);
 
-        StringBuffer sb = new StringBuffer("insert into group_permission_table(user_id, group_id)\n");
-        for (String members : membersList) {
-            sb.append("values ((select id from user_table where \"user_ID\" = '" + members + "'),(select group_id from groups where \"group_name\" = '" + groupName + "'));");
+        sql = "insert into user_groups(user_id, group_id)\n" +
+                "values ((select id from user_table where \"user_ID\" = '" + owner + "')," + id + ");";
+        DB.execute(sql, true);
+
+        StringBuffer sb = new StringBuffer("insert into group_permission_table(user_id, group_id)\nvalues\n");
+        for (int i = 0; i < membersList.length; i++) {
+            sb.append("((select id from user_table where \"user_ID\" = '" + membersList[i] + "')," + id + ")" + (i == membersList.length - 1 ? ";" : ","));
         }
 
         if (DB.execute(sb.toString(), false)) {
@@ -164,12 +179,12 @@ public class DBConnector {
         }
         return true;
     }
+
     //get request for join in request
-    public List<String[]> getJoinGroupRequest(String username)
-    {
+    public List<String[]> getJoinGroupRequest(String username) {
         String sql = "Select groups.group_id,groups.group_name,(select \"user_ID\" from user_table where user_table.id = groups.creator_id) from groups\n" +
                 "INNER JOIN group_permission_table gr on groups.group_id = gr.group_id\n" +
-                "where (select id from user_table where \"user_ID\" = '"+username+"') = gr.user_id";
+                "where (select id from user_table where \"user_ID\" = '" + username + "') = gr.user_id";
         ResultSet rs = DB.getData(sql);
         List<String[]> groups = new ArrayList<>();
         try {
@@ -186,27 +201,144 @@ public class DBConnector {
         }
         return groups;
     }
-    public boolean joinGroup(String username,String groupID)
-    {
+
+    public boolean joinGroup(String username, String groupID) {
+        //check if user has a request
         String sql = "select user_id from group_permission_table\n" +
-                "where user_id = (select id from user_table where \"user_ID\" = '"+username+"') and group_id = "+groupID+";";
+                "where user_id = (select id from user_table where \"user_ID\" = '" + username + "') and group_id = " + groupID + ";";
         ResultSet set = DB.getData(sql);
         String userId = null;
-        boolean flag  = false;
+        boolean flag = false;
         try {
-            if(set.next()!=false) flag = true;
+            if (set.next() != false) flag = true;
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        if(flag)
-        {
+        //add user to group
+        if (flag) {
             sql = "insert into user_groups(user_id, group_id)\n" +
-                    "values ((select id from user_table where \"user_ID\" = '"+username+"'),"+groupID+");";
+                    "values ((select id from user_table where \"user_ID\" = '" + username + "')," + groupID + ");";
 
-            flag = DB.execute(sql,true);
+            flag = DB.execute(sql, true);
+
+
+            // remove from permissions table
+            sql = "delete from group_permission_table\n" +
+                    "where group_id = '" + groupID + "' and user_id = (select id from user_table where \"user_ID\" = '" + username + "');";
+
+            if (flag)
+                flag = DB.execute(sql, true);
         }
         return flag;
+    }
 
+    public Group getGroup(String groupLink) {
 
+        String sql = "select * from groups\n" +
+                "where group_id = " + groupLink + ";";
+
+        ResultSet rs = DB.getData(sql);
+        String groupName = null;
+        String group_id = null;
+        String owner_id = null;
+        String description = null;
+        String created_time = null;
+        try {
+            rs.next();
+            groupName = rs.getString(1);
+            group_id = rs.getString(2);
+            owner_id = rs.getString(3);
+            description = rs.getString(4);
+            created_time = rs.getString(5);
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        List<String> members = new LinkedList<>();
+        sql = "select \"user_ID\" from user_table\n" +
+                "inner join user_groups g on user_table.id = g.user_id\n" +
+                "where group_id = " + groupLink + ";";
+        rs = DB.getData(sql);
+
+        try {
+            while (rs.next()) {
+                members.add(rs.getString(1));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        sql = "select (select \"user_ID\" from user_table where id = owner_id), file_name, version, size, lables, location, description, chats,uploaded_time,resource_table.resource_id from resource_table\n" +
+                "inner join group_resources gr on resource_table.resource_id = gr.resource_id\n" +
+                "where group_id = " + groupLink + ";";
+        List<Resource> resources = new LinkedList<Resource>();
+        rs = DB.getData(sql);
+
+        try {
+            while (rs.next()) {
+                Resource resource = new Resource(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getLong(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(10), rs.getString(9));
+                System.out.println(resource);
+                resources.add(resource);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return new Group(owner_id, groupName, group_id, created_time, description, resources, members);
+    }
+
+    public boolean removeResource(String resourceID, String username) {
+
+        String sql = "select * from resource_table\n" +
+                "where owner_id = (select id from user_table where \"user_ID\" = '" + username + "') and resource_id = '" + resourceID + "';";
+        ResultSet set = DB.getData(sql);
+        boolean flag = false;
+        try {
+            if (set.next())
+                flag =true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        sql = "delete from resource_permission\n" +
+                "where resource_id = '" + resourceID + "';\n" +
+                "\n" +
+                "delete from group_resources\n" +
+                "where resource_id = '" + resourceID + "';\n" +
+                "\n" +
+                "delete from resource_table\n" +
+                "where resource_id = '" + resourceID + "';";
+
+        if (flag)
+            return DB.execute(sql, true);
+        else
+            return false;
+    }
+
+    public void addComment(String resourceID, String comment, String username) {
+        String sql = "";
+    }
+
+    public List<Resource> getSharedResourcesForUser(String username) {
+        String sql = "select (select \"user_ID\" from user_table where id = owner_id), file_name, version, size, lables, location, description, chats,uploaded_time,resource_table.resource_id from resource_table\n" +
+                "inner join resource_permission rp on resource_table.resource_id = rp.resource_id\n" +
+                "where rp.user_id = (select id from user_table where \"user_ID\" = '"+username+"');";
+
+        List<Resource> resources = new LinkedList<Resource>();
+        ResultSet rs = DB.getData(sql);
+
+        try {
+            while (rs.next()) {
+                Resource resource = new Resource(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getLong(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getString(10), rs.getString(9));
+                System.out.println(resource);
+                resources.add(resource);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return resources;
     }
 }

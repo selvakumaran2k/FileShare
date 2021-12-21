@@ -21,7 +21,6 @@ public class UploadServlet extends HttpServlet {
         HttpSession session = request.getSession();
         String username = (String) session.getAttribute("username");
 
-        /* Receive file uploaded to the Servlet from the HTML5 form */
         boolean isUploaded = false;
         String resourceLocation = null;
         String fileName = "";
@@ -46,7 +45,7 @@ public class UploadServlet extends HttpServlet {
         if(isUploaded)
         {
             File file = new File(resourceLocation);
-            Resource resource = new Resource(username,fileName,0,file.getTotalSpace(),"lables",file.getAbsolutePath(),"description","chats",null,null);
+            Resource resource = new Resource(username,fileName,0,file.length()/8,"lables",file.getAbsolutePath(),"description","chats",null,null);
             if(!connector.addResource(resource))
             {
                 System.out.println("File is removed");

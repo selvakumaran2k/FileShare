@@ -16,7 +16,7 @@ public class OursServlet extends HttpServlet {
         HttpSession session = (HttpSession) request.getSession();
         String username  = (String) session.getAttribute("username");
 
-        List<String> userGroups = connector.getGroupsForUser(username);
+        List<String[]> userGroups = connector.getGroupsForUser(username);
         session.setAttribute("userGroups", userGroups);
 
         List<String[]> userRequest = connector.getJoinGroupRequest(username);

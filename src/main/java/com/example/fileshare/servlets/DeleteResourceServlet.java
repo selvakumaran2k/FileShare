@@ -6,35 +6,25 @@ import com.example.fileshare.processingPack.Resource;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
+import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
-@WebServlet(name = "OpenFileServlet", value = "/open/*")
-public class OpenFileServlet extends HttpServlet {
+@WebServlet(name = "DeleteResourceServlet", value = "/deleteResource/*")
+public class DeleteResourceServlet extends HttpServlet {
     DBConnector connector = DBConnector.getInstance();
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         String username = (String) session.getAttribute("username");
         String arr[] = request.getRequestURI().split("/");
-        String resourceName = arr[arr.length - 1];
-        String openType = arr[arr.length - 2];
-        Resource resource = connector.getResource(resourceName);
-        System.out.println(resource);
-        session.setAttribute("targetResource",resource);
-
-        List<String[]> userGroups = connector.getGroupsForUser(username);
-        session.setAttribute("userGroups", userGroups);
-
-        String tagetPage = "/GroupFilePage.jsp";
-        if(openType.equals("single"))
+        String resourceID = arr[arr.length - 1];
+        Resource resource = connector.getResource(resourceID);
+        if(connector.removeResource(resourceID,username))
         {
-            tagetPage = "/singleShareFilePage.jsp";
-        }else if(openType.equals("owner"))
-        {
-            tagetPage = "/FilePage.jsp";
+            String location = resource.getLocation();
+            new File(location).delete();
         }
-        RequestDispatcher requestDispatcher = request.getRequestDispatcher(tagetPage);
+        RequestDispatcher requestDispatcher = request.getRequestDispatcher("/home");
         requestDispatcher.forward(request,response);
 
     }

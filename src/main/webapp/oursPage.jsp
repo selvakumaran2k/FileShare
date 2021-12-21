@@ -16,35 +16,54 @@
     <div class="container">
         <a href="/FileShare/createGroup.jsp">
             <button class="btn btn-success mt-5">
-                Create New
+                Create New Group
             </button>
         </a>
 
-        <div class="list-group mt-5">
+
+        <div class="container" >
+        <div class="list-group mt-3 mb-3" style="width: 50%">
+            <h3>Group join requests</h3>
             <%
                 List<String[]> userRequest = (List<String[]>) session.getAttribute("userRequest");
                 for (String userGroup[] : userRequest) {
             %>
-
-            <a href="/join/<%=userGroup[0]%>" class="list-group-item list-group-item-action">
-                <%=userGroup[1]%>
-            </a>
-            <p>
-                <%=userGroup[2]%>
-            </p>
+            <li class="list-group-item">
+                <div class="container" >
+                    <div class="row">
+                        <div class="col">
+                          <strong><%=userGroup[1]%></strong>
+                        </div>
+                        <div class="col">
+                            <p>
+                                Owned by : <strong><%=userGroup[2]%></strong>
+                            </p>
+                        </div>
+                        <div class="col-2">
+                            <a href="/FileShare/join/<%=userGroup[0]%>" class="btn btn-success">
+                                Join
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </li>
             <% } %>
         </div>
+        </div>
 
-        <div class="list-group mt-5">
+        <div class="container" >
+        <div class="list-group mt-5" style="width: 50%">
+            <h3>Grouped files</h3>
             <%
-                List<String> userGroups = (List<String>) session.getAttribute("userGroups");
-                for (String userGroup : userGroups) {
+                List<String[]> userGroups = (List<String[]>) session.getAttribute("userGroups");
+                for (String userGroup[] : userGroups) {
             %>
 
-            <a href="/FileShare/openGroup/<%=userGroup%>" class="list-group-item list-group-item-action">
-                <%=userGroup%>
+            <a href="/FileShare/openGroup/<%=userGroup[1]%>" class="list-group-item list-group-item-action mb-2">
+                <%=userGroup[0]%>
             </a>
             <% } %>
+        </div>
         </div>
     </div>
 </div>

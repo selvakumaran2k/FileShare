@@ -20,9 +20,11 @@ public class CreateGroupServlet extends HttpServlet {
         String groupName = request.getParameter("name");
         String members = request.getParameter("members");
         String membersList[] = members.split(",");
+        HttpSession session = request.getSession();
+        String username = (String) session.getAttribute("username");
 
         RequestDispatcher requestDispatcher = null;
-        boolean isGroupCreated = connector.createGroup(groupName, membersList);
+        boolean isGroupCreated = connector.createGroup(groupName, membersList,username);
 
         if(isGroupCreated)
         {
