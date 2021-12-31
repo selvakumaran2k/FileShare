@@ -19,16 +19,24 @@ public class CreateGroupServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String groupName = request.getParameter("name");
         String members = request.getParameter("members");
+//        String isPublic = request.getParameter("isPublic");
         String membersList[] = members.split(",");
         HttpSession session = request.getSession();
         String username = (String) session.getAttribute("username");
 
         RequestDispatcher requestDispatcher = null;
-        boolean isGroupCreated = connector.createGroup(groupName, membersList,username);
+        boolean isGroupCreated= false;
+//        System.out.println("From inputs: "+isPublic);
+//        if(!isPublic.equals("public")) {
+            isGroupCreated = connector.createGroup(groupName, membersList, username);
+//        }else
+//        {
+//            isGroupCreated = connector.createGroup(groupName,username);
+//        }
 
         if(isGroupCreated)
         {
-            requestDispatcher = request.getRequestDispatcher("/home");
+            requestDispatcher = request.getRequestDispatcher("/ours");
         }else
         {
             requestDispatcher = request.getRequestDispatcher("/FileShare/createGroup.jsp");

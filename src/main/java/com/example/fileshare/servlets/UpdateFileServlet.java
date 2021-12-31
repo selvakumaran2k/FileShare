@@ -9,17 +9,23 @@ import javax.servlet.annotation.*;
 import java.io.File;
 import java.io.IOException;
 
-@WebServlet(name = "UploadServlet", urlPatterns = { "/uploadd" })
+@WebServlet(name = "UpdateFileServlet", value = "/updateFile")
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024 * 1 // 1 MB
 )
-public class UploadServlet extends HttpServlet {
-
-    final String toSaveLocationPath = "D://test";
+public class UpdateFileServlet extends HttpServlet {
     private final DBConnector connector = DBConnector.getInstance();
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         String username = (String) session.getAttribute("username");
+        String resourceID = request.getParameter("resource");
+
+        System.out.println(username + ":" + resourceID);
+        Resource targetResource = connector.getResource(resourceID);
+        String location = targetResource.getLocation();
+        String root = location.substring(0,location.lastIndexOf("/")+1);
+
 
         boolean isUploaded = false;
         String resourceLocation = null;
@@ -27,44 +33,32 @@ public class UploadServlet extends HttpServlet {
         try {
             Part filePart = request.getPart("file");
             fileName= filePart.getSubmittedFileName();
-            File file = new File(toSaveLocationPath+"\\"+username);
+            File file = new File(targetResource.getLocation());
             if(!file.exists())
             {
                 file.mkdir();
             }
-
-            File resourcefile = new File(file.getAbsolutePath()+"\\"+fileName);
-            if(resourcefile.exists())
-            {
-                int lastIndexOf = fileName.lastIndexOf('.');
-                String ext = fileName.substring(lastIndexOf+1);
-                StringBuffer Fname = new StringBuffer(fileName.substring(0, lastIndexOf));
-                Fname.append("_new.");
-                Fname.append(ext);
-                fileName = Fname.toString();
-                System.out.println("File name extended as "+fileName);
-            }
-            resourceLocation = file.getAbsolutePath()+"\\"+fileName;
-
+            resourceLocation = root+"\\"+fileName;
             for (Part part : request.getParts()) {
-                part.write(resourceLocation);
+                part.write(targetResource.getLocation());
             }
             isUploaded = true;
         }catch (Exception e)
         {
-           e.printStackTrace();
+            e.printStackTrace();
         }
         RequestDispatcher requestDispatcher ;
         if(isUploaded)
         {
             File file = new File(resourceLocation);
-            Resource resource = new Resource(username,fileName,0,file.length(),"lables",file.getAbsolutePath(),"description","chats",null,null);
-            if(!connector.addResource(resource))
+            Resource resource = new Resource(username,fileName,1,file.length(),"lables",file.getAbsolutePath(),"description","chats", targetResource.getId(), null);
+            if(!connector.updateResource(resource,fileName,targetResource.getVersion(),resourceLocation))
             {
-                System.out.println("File is removed");
+                System.out.println("File is updated");
                 requestDispatcher = request.getRequestDispatcher("uploadPage.jsp");
                 file.delete();
             }else {
+                System.out.println("Successfully updated ..");
                 session.setAttribute("uploadStatus", "success upload");
                 requestDispatcher = request.getRequestDispatcher("home");
             }
@@ -76,5 +70,4 @@ public class UploadServlet extends HttpServlet {
         }
         requestDispatcher.forward(request,response);
     }
-
 }

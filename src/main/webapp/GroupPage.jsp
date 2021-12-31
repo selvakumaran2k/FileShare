@@ -1,6 +1,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.example.fileshare.processingPack.Resource" %>
-<%@ page import="com.example.fileshare.processingPack.Group" %><%--
+<%@ page import="com.example.fileshare.processingPack.Group" %>
+<%@ page import="org.apache.commons.io.FileUtils" %><%--
   Created by IntelliJ IDEA.
   User: selvakumaran
   Date: 20/12/2021
@@ -21,8 +22,8 @@
 
     <div class="details mb-6 p-3" style=" width: max-content;color: white">
         <h3 style="color: white"><strong><%=group.getGroupName()%></strong></h3>&nbsp;&nbsp;
-        <%=group.getTimeCreated()%>
-        <%=group.getDescription()%>
+        created at : <%=group.getTimeCreated()%>
+<%--        <%=group.getDescription()%>--%>
     </div>
     <div class="row">
         <div class="col ml-3" style="display: flex;flex-wrap: wrap; background:#4f64d0;">
@@ -34,13 +35,22 @@
                     <img src="https://aroundsketch.github.io/Apple-App-Icons/App%20Icon/Apple/Files/@PNG.png" width="70px" height="70px" alt="Application">
                     <div class="card-body">
                         <h5 class="card-title"><%=resource.getFileName()%>
+                            <%!
+                                public String redableSize(long size) {
+                                    return FileUtils.byteCountToDisplaySize(size);
+                                }
+                            %>
+
+                            <span class="badge bg-info" style="color: black;"> <%=redableSize(resource.getSize())%></span>
                             <%--                    <% if (true) { %>--%>
                             <%--                    <span class="badge bg-success">ACTIVE</span>--%>
                             <%--                    <% } else {%>--%>
                             <%--                    <span class="badge bg-danger">INACTIVE</span>--%>
                             <%--                    <% } %>--%>
                         </h5>
-                        <p class="card-text"><%=resource.getDescription()%>
+                        <p class="card-text">
+                            Updated @ :
+                            <%=resource.getTimestamp().substring(0,resource.getTimestamp().lastIndexOf('.'))%>
                         </p>
                         <a href="/FileShare/open/group/<%=resource.getId()%>" class="btn btn-primary" >Open</a>
                         <%--                <a href="/Master/removeApplication/<%=resource.getSize()%>" class="btn btn-danger">X</a>--%>
@@ -50,13 +60,12 @@
             <% } %>
         </div>
         <div class="col-2 ml-3" style="background:#8F9FF4;">
-            <div class="list-group mt-5">
+            <div class="list-group mt-5 mb-3">
                 <h4>Members</h4>
                 <%
                     for (String userGroup : group.getGroupMembers()) {
                 %>
-
-                <a href="/FileShare/openGroup/<%=userGroup%>" class="list-group-item list-group-item-action">
+                <a href="#" class="list-group-item list-group-item-action">
                     <%=userGroup%>
                 </a>
                 <% } %>

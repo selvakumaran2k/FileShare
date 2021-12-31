@@ -1,5 +1,6 @@
 <%@ page import="com.example.fileshare.processingPack.Resource" %>
-<%@ page import="java.util.List" %><%--
+<%@ page import="java.util.List" %>
+<%@ page import="org.apache.commons.io.FileUtils" %><%--
   Created by IntelliJ IDEA.
   User: selvakumaran
   Date: 19/12/2021
@@ -27,13 +28,20 @@
             <img src="https://aroundsketch.github.io/Apple-App-Icons/App%20Icon/Apple/Files/@PNG.png" width="70px" height="70px" alt="Application">
             <div class="card-body">
                 <h5 class="card-title"><%=resource.getFileName()%>
+                    <%!
+                        public String redableSize(long size) {
+                            return FileUtils.byteCountToDisplaySize(size);
+                        }
+                    %>
+
+                    <span class="badge bg-info" style="color: black;"> <%=redableSize(resource.getSize())%></span>
                     <%--                    <% if (true) { %>--%>
                     <%--                    <span class="badge bg-success">ACTIVE</span>--%>
                     <%--                    <% } else {%>--%>
                     <%--                    <span class="badge bg-danger">INACTIVE</span>--%>
                     <%--                    <% } %>--%>
                 </h5>
-                <p class="card-text"><%=resource.getOwner()%>
+                <p class="card-text">Shared by : <%=resource.getOwner()%>
                 </p>
                 <a href="/FileShare/open/single/<%=resource.getId()%>" class="btn btn-primary" >Open</a>
                 <a href="/FileShare/download/<%=resource.getId()%>" class="btn btn-success">Download</a>

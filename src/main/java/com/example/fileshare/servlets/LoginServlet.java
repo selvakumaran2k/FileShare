@@ -1,6 +1,8 @@
 package com.example.fileshare.servlets;
 
 import com.example.fileshare.DB.DBConnector;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -10,16 +12,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Properties;
 
 @WebServlet(name = "LoginServlet", value = "/login")
 public class LoginServlet extends HttpServlet {
-    DBConnector connector = DBConnector.getInstance();
+    private DBConnector connector = DBConnector.getInstance();
+    private static final Logger logger = LogManager.getLogger(LoginServlet.class);
+    private static Properties properties = new Properties();
+    static {
+//            properties.load(new FileInputStream("log4j.properties"));
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        RequestDispatcher RequestsDispatcherObj = null;
-        RequestsDispatcherObj = request.getRequestDispatcher("/index.jsp");
-        RequestsDispatcherObj.forward(request, response);
+        final String username = request.getParameter("username");
+        logger.info("user name : "+username);
     }
 
     @Override
@@ -27,8 +34,10 @@ public class LoginServlet extends HttpServlet {
         System.out.println("Local Login called....");
         final String username = request.getParameter("username");
         final String password = request.getParameter("password");
+        logger.info("user name : "+username);
+        logger.info("user password :"+password);
+        System.out.println(logger.getName());
 
-        System.out.println(username + " " + password);
         boolean isVaildUser = connector.validateUser(username, password);
 
         RequestDispatcher RequestsDispatcherObj = null;
@@ -41,7 +50,6 @@ public class LoginServlet extends HttpServlet {
             RequestsDispatcherObj = request.getRequestDispatcher("/index.jsp");
         }
         RequestsDispatcherObj.forward(request, response);
-
     }
 
 }

@@ -1,5 +1,6 @@
 <%@ page import="com.example.fileshare.processingPack.Resource" %>
-<%@ page import="java.util.List" %><%--
+<%@ page import="java.util.List" %>
+<%@ page import="org.apache.commons.io.FileUtils" %><%--
   Created by IntelliJ IDEA.
   User: selvakumaran
   Date: 18/12/2021
@@ -12,19 +13,6 @@
 <html>
 <head>
     <title>File</title>
-    <script>
-        function shareUser() {
-            document.getElementById("target").value = "user";
-            document.getElementById("share").submit();
-
-        }
-
-        function shareGroup() {
-            document.getElementById("target1").value = "group";
-            document.getElementById("share1").submit();
-
-        }
-    </script>
 </head>
 <body>
 <div class="container">
@@ -43,11 +31,16 @@
                                 <strong><%=resource.getFileName()%>
                                 </strong>
                             </li>
+                            <%!
+                                public String redableSize(long size) {
+                                    return FileUtils.byteCountToDisplaySize(size);
+                                }
+                            %>
                             <li class="list-group-item">
                                 Size :
                                 <strong>
-                                    <%=resource.getSize()%>
-                                </strong> Bytes
+                                    <%=redableSize(resource.getSize())%>
+                                </strong>
                             </li>
                             <%--                            <li class="list-group-item">--%>
                             <%--                                <strong>--%>

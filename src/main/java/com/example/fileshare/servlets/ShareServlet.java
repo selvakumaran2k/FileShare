@@ -1,6 +1,8 @@
 package com.example.fileshare.servlets;
 
 import com.example.fileshare.DB.DBConnector;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -9,7 +11,9 @@ import java.io.IOException;
 
 @WebServlet(name = "ShareServlet", value = "/share")
 public class ShareServlet extends HttpServlet {
-    DBConnector connector = DBConnector.getInstance();
+    private static final DBConnector connector = DBConnector.getInstance();
+    private static final Logger logger = LogManager.getLogger(LoginServlet.class);
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String arr[] = request.getRequestURI().split("/");
@@ -25,14 +29,16 @@ public class ShareServlet extends HttpServlet {
         String targetName = request.getParameter("targetName");
         String resource= request.getParameter("resource");
         String target = request.getParameter("target");
+        System.out.println(targetName+" "+resource+" "+target);
 
-        HttpSession session = (HttpSession) request.getSession();
+        HttpSession session = request.getSession();
         RequestDispatcher requestDispatcher = null;
         if(target.equals("user"))
         {
             if(connector.shareResource(targetName,resource,"1"))
             {
                 System.out.println("Shared");
+                logger.info("Resource with id  " + resource + "shared to" +targetName + "by"+ target);
                 session.setAttribute("updateStatus","Success sharing resource");
                 requestDispatcher = request.getRequestDispatcher("/home");
             }else
@@ -45,8 +51,9 @@ public class ShareServlet extends HttpServlet {
             if(connector.shareResourceToGroup(targetName,resource,"1"))
             {
                 System.out.println("Shared");
+                logger.info("Resource with id  " + resource + "shared to Group " +targetName + " by "+ target);
                 session.setAttribute("updateStatus","Success sharing resource");
-                requestDispatcher = request.getRequestDispatcher("/home");
+                requestDispatcher = request.getRequestDispatcher("/openGroup/"+targetName);
             }else
             {
                 session.setAttribute("updateStatus","Failed sharing");

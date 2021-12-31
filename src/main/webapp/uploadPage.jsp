@@ -20,10 +20,10 @@
 <body>
 <div class="container">
     <div class="mb-3">
-        <form method="post" action="upload" enctype="multipart/form-data">
+        <form method="post" action="upload" enctype="multipart/form-data" >
         <label for="formFile" class="form-label">Choose File</label>
-        <input class="form-control" type="file" id="formFile" name = "file" >
-            <button type="submit" class="btn btn-success mb-3 mt-3" >Uplaod</button>
+        <input class="form-control" type="file" id="formFile" name = "file" multiple>
+            <button type="submit" class="btn btn-success mb-3 mt-3" >Upload</button>
         </form>
     </div>
 </div>

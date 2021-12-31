@@ -7,9 +7,11 @@ import sun.awt.image.ImageWatched;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -118,13 +120,13 @@ public class DBConnector {
 
     public boolean shareResource(String targetName, String resource, String level) {
         String sql = "insert into resource_permission(user_id, resource_id, level)\n" +
-                "values ((select id from user_table where \"user_ID\" = '" + targetName + "')," + resource + "," + level + ");";
+                "values ((select id from user_table where \"user_ID\" = '" + targetName + "')," + resource + "," + level + ")\non conflict do nothing ;";
         return DB.execute(sql, true);
     }
 
     public boolean shareResourceToGroup(String targetName, String resource, String level) {
         String sql = "  insert into group_resources(group_id, resource_id)\n" +
-                " VALUES (" + targetName + "," + resource + ");";
+                " VALUES (" + targetName + "," + resource + ")on conflict do nothing ;";
         return DB.execute(sql, true);
     }
 
@@ -147,7 +149,7 @@ public class DBConnector {
         }
         return groups;
     }
-
+    //create a group with users
     public boolean createGroup(String groupName, String[] membersList, String owner) {
         String sql = "insert into groups(group_name,creator_id,description,created_time)\n" +
                 "values ('" + groupName + "',(select id from user_table where \"user_ID\" = '" + owner + "'),'Group',current_timestamp) returning group_id;";
@@ -178,6 +180,22 @@ public class DBConnector {
             return false;
         }
         return true;
+    }
+    //create a public group with key
+    public boolean createGroup(String groupName, String owner) {
+      String sql = "insert into groups(group_name, creator_id, description, created_time, group_key) VALUES " +
+              "("+groupName+",(select id from user_table where \"user_ID\" = '" + owner + "'),'group',current_timestamp,"+generateNewToken()+")";
+      return DB.execute(sql,true);
+    }
+
+    //generatetoken
+    private static final SecureRandom secureRandom = new SecureRandom();
+    private static final Base64.Encoder base64Encoder = Base64.getUrlEncoder();
+
+    private static String generateNewToken() {
+        byte[] randomBytes = new byte[24];
+        secureRandom.nextBytes(randomBytes);
+        return base64Encoder.encodeToString(randomBytes);
     }
 
     //get request for join in request
@@ -340,5 +358,18 @@ public class DBConnector {
             return null;
         }
         return resources;
+    }
+
+    public boolean updateResource(Resource resource, String fileName, int version,String location) {
+        String sql = "update resource_table\n" +
+                "set (version,file_name,location,uploaded_time) = ("+version+",'"+fileName+"','"+location+"',current_timestamp)\n" +
+                "where resource_table.resource_id = "+resource.getId()+";";
+
+        return DB.execute(sql,true);
+    }
+
+    public boolean removeResourceFromGroup(String groupID, String resourceID) {
+        String sql = "delete from group_resources where group_id = "+groupID+" and resource_id = "+resourceID+";";
+        return DB.execute(sql,true);
     }
 }

@@ -12,7 +12,15 @@ public class Resource {
     private String id;
     private String timestamp;
 
-    public Resource(String owner, String fileName, int version, long size, String lables, String location, String description, String chats, String id,String timestamp) {
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public Resource(String owner, String fileName, int version, long size, String lables, String location, String description, String chats, String id, String timestamp) {
         this.owner = owner;
         this.fileName = fileName;
         this.version = version;

@@ -1,5 +1,7 @@
 <%@ page import="com.example.fileshare.processingPack.Resource" %>
-<%@ page import="java.util.List" %><%--
+<%@ page import="java.util.List" %>
+<%@ page import="org.apache.commons.io.FileUtils" %>
+<%@ page import="com.example.fileshare.processingPack.Group" %><%--
   Created by IntelliJ IDEA.
   User: selvakumaran
   Date: 18/12/2021
@@ -43,11 +45,16 @@
                                 <strong><%=resource.getFileName()%>
                                 </strong>
                             </li>
+                            <%!
+                                public String redableSize(long size) {
+                                    return FileUtils.byteCountToDisplaySize(size);
+                                }
+                            %>
                             <li class="list-group-item">
                                 Size :
                                 <strong>
-                                    <%=resource.getSize()%>
-                                </strong> Bytes
+                                    <%=redableSize(resource.getSize())%>
+                                </strong>
                             </li>
                             <%--                            <li class="list-group-item">--%>
                             <%--                                <strong>--%>
@@ -72,11 +79,18 @@
                                         <%--                                                update--%>
                                         <%--                                            </button>--%>
                                         <%--                                        </a>--%>
-                                        <a href="/FileShare/deleteResource/<%=resource.getId()%>">
+                                        <%
+                                            String username = (String) session.getAttribute("username");
+                                            Group targetGroup = (Group) session.getAttribute("targetGroup");
+                                            if (username.equals(resource.getOwner()))
+                                            {
+                                        %>
+                                        <a href="/FileShare/removeResource/<%=resource.getId()%>_<%=targetGroup.getGroup_id()%>">
                                             <button class="btn btn-danger mx-3 mb-3">
                                                 Remove
                                             </button>
                                         </a>
+                                        <%}%>
                                         <a href="/FileShare/download/<%=resource.getId()%>">
                                             <button class="btn btn-success mx-3 mb-3">
                                                 Download
@@ -106,22 +120,23 @@
                         <div class="list-group">
                             <a href="#" class="list-group-item list-group-item-action">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">List group item heading</h5>
-<%--                                    <small class="text-muted">3 days ago</small>--%>
+                                    <h5 class="mb-1">username</h5>
+                                    <%--                                    <small class="text-muted">3 days ago</small>--%>
                                 </div>
-                                <p class="mb-1">Some placeholder content in a paragraph.</p>
-<%--                                <small class="text-muted">And some muted small print.</small>--%>
+                                <p class="mb-1">Sample message</p>
+                                <%--                                <small class="text-muted">And some muted small print.</small>--%>
                             </a>
                         </div>
                     </li>
                     <li class="list-group-item">
-                        second comment
+                        second message
                     </li>
                     <li class="list-group-item">
                         <div class="col-auto">
                             <form action="/FileShare/addComment" method="post">
-                            <input type="text" class="form-control" id="comment" name = "comment" placeholder="~~~">
-                                <input type="text" class="form-control" id="resourceID" name = "resourceID" placeholder="~~~" hidden value="<%=resource.getId()%>">
+                                <input type="text" class="form-control" id="comment" name="comment" placeholder="~~~">
+                                <input type="text" class="form-control" id="resourceID" name="resourceID"
+                                       placeholder="~~~" hidden value="<%=resource.getId()%>">
                             </form>
                         </div>
                         <div class="col-auto">

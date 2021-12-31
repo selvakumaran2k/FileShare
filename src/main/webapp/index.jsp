@@ -48,7 +48,7 @@
     }
 
 </style>
-<body style="background-color: black">
+<body style="background-color: #516bf5">
 <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
@@ -62,15 +62,15 @@
     <form method="post" action="login">
     <div class="row">
         <div class="col-md-offset-5 col-md-3">
-            <div class="form-login">
-                <h4>Welcome back.</h4>
+            <div class="form-login" style="background:black; color: white">
+                <h4>File share</h4>
                 <input type="text" id="username" name = "username"  class="form-control input-sm chat-input" placeholder="username" autofocus />
                 </br>
                 <input type="password" id="password" name = "password" class="form-control input-sm chat-input" placeholder="key" />
                 </br>
                 <div class="wrapper">
             <span class="group-btn">
-                <button type="submit" class="btn btn-primary btn-md">open <i class="fa fa-sign-in"></i></button>
+                <button type="submit" class="btn btn-success btn-md">open <i class="fa fa-sign-in"></i></button>
             </span>
                 </div>
             </div>
